@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>J’ai 5 Minutes !</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+      transition: background-color 0.5s ease;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+    }
+    .menu-toggle {
+      font-size: 24px;
+      cursor: pointer;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .menu {
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      padding: 20px 25px;
+      display: none;
+      z-index: 1000;
+      color: #111;
+      width: 220px;
+    }
+    .menu-title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .menu button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 10px 0;
+      text-align: left;
+      color: #111;
+      width: 100%;
+    }
+    .emoji-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .emoji {
+      position: absolute;
+      font-size: 32px;
+      animation: float 12s infinite ease-in-out;
+      opacity: 0.3;
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-30px); }
+      100% { transform: translateY(0px); }
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }    .section { display: none; }
+    #chrono {
+      font-size: 40px;
+      margin: 20px;
+    }
+    input[type="text"], input[type="date"], input[type="time"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 80%;
+      margin: 5px 0;
+    }
+    button {
+      padding: 14px 24px;
+      margin-top: 10px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    #task {
+      transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.8s ease;
+      padding: 15px;
+      display: inline-block;
+      border-radius: 10px;
+      font-size: 20px;
+      background-color: white;
+    }
+    #task.animate {
+      transform: scale(1.2);
+      opacity: 0.5;
+      background-color: #d4edff;
+    }
+    .events, .todo-list {
+      margin-top: 15px;
+      text-align: left;
+      max-width: 500px;
+      margin-inline: auto;
+    }
+    .event-day, .todo-item {
+      margin-top: 20px;
+      background: #ffffffb7;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    ul#dailyGoals {
+      list-style: none;
+      padding: 0;
+    }
+  </style>
+</head>
+<body id="body">
+<div class="emoji-bg" id="emojiBackground"></div>
+<header>
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+  <h1 id="pageTitle">J’ai 5 Minutes !</h1>
+</header>
+<div class="menu" id="menu">
+  <div class="menu-title">📋 Menu</div>
+  <button onclick="showSection('main', 'J’ai 5 Minutes !', '#fffbe6', ['🧠','📚','🍎','💡','🧘'])">⏱️ J’ai 5 Minutes</button>
+  <button onclick="showSection('don', 'Faire un don ❤️', '#ffe6e6', ['💖','💸','🤝','🙏','✨'])">❤️ Faire un don</button>
+  <button onclick="showSection('planning', 'Mon planning 🗓️', '#e6f2ff', ['📅','🕒','🗂️','📆','🖊️'])">📅 Mon planning</button>
+  <button onclick="showSection('todo', 'À faire ! 🔔', '#f0fff0', ['📝','✅','⏰','📌','📋'])">🔔 À faire !</button>
+  <button onclick="showSection('objectifs', 'Objectif de journée 🎯', '#fff0f5', ['🏃‍♂️','🏋️‍♀️','🥗','🧼','📵'])">🎯 Objectif de journée</button>
+</div>
+
+<main id="main" class="section" style="display: block;">
+  <div id="chrono">00:00</div>
+  <p>Voici une activité rapide à faire 👇</p>
+  <div id="task">🧠 Boire un verre d’eau</div>
+  <br>
+  <button onclick="generateTask()">Nouvelle activité</button>
+</main>
+
+<main id="don" class="section">
+  <h2>Soutiens-nous ❤️</h2>
+  <p>Tu peux faire un don pour améliorer ce projet !</p>
+  <button onclick="alert('Lien de don pas encore configuré.')">Faire un don</button>
+</main>
+
+<main id="planning" class="section">
+  <h2>Mon planning 📅</h2>
+  <input type="text" id="eventText" placeholder="Écrire une activité..." />
+  <input type="date" id="eventDate" />
+  <input type="time" id="eventTime" />
+  <button onclick="addEvent()">Ajouter</button>
+  <div class="events" id="eventList"></div>
+</main>
+
+<main id="todo" class="section">
+  <h2>À faire ! 🔔</h2>
+  <input type="text" id="todoInput" placeholder="Tâche importante..." />
+  <button onclick="addTodo()">Ajouter</button>
+  <div class="todo-list" id="todoList"></div>
+</main>
+
+<main id="objectifs" class="section">
+  <h2>🎯 Objectif de journée</h2>
+  <p>Voici tes missions pour aujourd’hui :</p>
+  <ul id="dailyGoals"></ul>
+  <button onclick="generateGoals()">🔄 Générer de nouveaux objectifs</button>
+</main><script>
+const tasks = ["🧠 Boire un verre d’eau", "📚 Lire 1 page d’un livre", "🧘‍♀️ Faire une respiration profonde", "🧹 Ranger un coin", "🍎 Manger un fruit"];
+let taskPool = [...tasks], sec = 0;
+const events = JSON.parse(localStorage.getItem("events") || "[]");
+const todos = JSON.parse(localStorage.getItem("todos") || "[]");
+const allGoals = [
+  "🚶 Marcher 3 km", "🏋️ Faire une séance de sport maison (15 min)", "🧘 Méditer 5 minutes",
+  "🧼 Ranger une pièce entière", "📵 Couper les réseaux pendant 1 heure", "📖 Lire 10 pages d’un livre",
+  "📝 Écrire une idée de projet", "🍽 Manger un repas équilibré", "📂 Trier ses fichiers", "💧 Boire 1,5L d’eau"
+];
+let dailyGoals = JSON.parse(localStorage.getItem("dailyGoals") || "[]");
+
+function toggleMenu() {
+  const menu = document.getElementById('menu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+function showSection(id, title, bg, emojis = []) {
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+  document.getElementById('menu').style.display = 'none';
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('body').style.backgroundColor = bg;
+  updateEmojiBackground(emojis);
+}
+
+function updateEmojiBackground(emojis) {
+  const container = document.getElementById("emojiBackground");
+  container.innerHTML = '';
+  emojis.forEach(() => {
+    const e = document.createElement("div");
+    e.className = "emoji";
+    e.style.top = Math.random() * 100 + "%";
+    e.style.left = Math.random() * 100 + "%";
+    e.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    container.appendChild(e);
+  });
+}
+
+function generateTask() {
+  const el = document.getElementById('task');
+  if (taskPool.length === 0) taskPool = [...tasks];
+  const index = Math.floor(Math.random() * taskPool.length);
+  const task = taskPool.splice(index, 1)[0];
+  el.classList.add("animate");
+  setTimeout(() => {
+    el.textContent = task;
+    el.classList.remove("animate");
+  }, 300);
+}
+
+function addEvent() {
+  const text = document.getElementById("eventText").value,
+        date = document.getElementById("eventDate").value,
+        time = document.getElementById("eventTime").value;
+  if (text && date && time) {
+    events.push({ text, date, time });
+    localStorage.setItem("events", JSON.stringify(events));
+    displayEvents();
+  }
+}
+
+function displayEvents() {
+  const list = document.getElementById("eventList");
+  list.innerHTML = '';
+  const grouped = {};
+  events.forEach(e => {
+    if (!grouped[e.date]) grouped[e.date] = [];
+    grouped[e.date].push(e);
+  });
+  for (let date of Object.keys(grouped).sort()) {
+    const div = document.createElement("div");
+    div.className = "event-day";
+    const title = document.createElement("h3");
+    title.textContent = `📆 ${date}`;
+    div.appendChild(title);
+    grouped[date].sort((a,b)=>a.time.localeCompare(b.time)).forEach(e => {
+      const item = document.createElement("div");
+      item.textContent = `🕒 ${e.time} — ${e.text}`;
+      item.onclick = () => {
+        if (confirm("Supprimer ?")) {
+          const i = events.indexOf(e);
+          if (i > -1) events.splice(i, 1);
+          localStorage.setItem("events", JSON.stringify(events));
+          displayEvents();
+        }
+      };
+      div.appendChild(item);
+    });
+    list.appendChild(div);
+  }
+}
+
+function addTodo() {
+  const input = document.getElementById("todoInput");
+  if (input.value.trim()) {
+    todos.push(input.value.trim());
+    localStorage.setItem("todos", JSON.stringify(todos));
+    input.value = '';
+    displayTodos();
+  }
+}
+
+function displayTodos() {
+  const list = document.getElementById("todoList");
+  list.innerHTML = '';
+  todos.forEach((t, i) => {
+    const div = document.createElement("div");
+    div.className = "todo-item";
+    div.textContent = `🔔 ${t}`;
+    div.onclick = () => {
+      if (confirm("Marquer comme fait ?")) {
+        todos.splice(i, 1);
+        localStorage.setItem("todos", JSON.stringify(todos));
+        displayTodos();
+      }
+    };
+    list.appendChild(div);
+  });
+}
+
+function generateGoals() {
+  dailyGoals = [];
+  const temp = [...allGoals];
+  for (let i = 0; i < 3; i++) {
+    const index = Math.floor(Math.random() * temp.length);
+    dailyGoals.push({ text: temp.splice(index, 1)[0], done: false });
+  }
+  localStorage.setItem("dailyGoals", JSON.stringify(dailyGoals));
+  displayGoals();
+}
+
+function displayGoals() {
+  const ul = document.getElementById("dailyGoals");
+  ul.innerHTML = "";
+  dailyGoals.forEach((goal, index) => {
+    const li = document.createElement("li");
+    li.style.cursor = "pointer";
+    li.style.marginBottom = "10px";
+    li.style.fontSize = "18px";
+    li.style.textDecoration = goal.done ? "line-through" : "none";
+    li.textContent = (goal.done ? "✅ " : "🔲 ") + goal.text;
+    li.onclick = () => {
+      dailyGoals[index].done = !dailyGoals[index].done;
+      localStorage.setItem("dailyGoals", JSON.stringify(dailyGoals));
+      displayGoals();
+    };
+    ul.appendChild(li);
+  });
+}
+
+displayEvents();
+displayTodos();
+displayGoals();
+updateEmojiBackground(['🧠','📚','🍎','💡','🧘']); // fond initial
+
+setInterval(() => {
+  sec++;
+  const min = Math.floor(sec / 60), reste = sec % 60;
+  document.getElementById('chrono').textContent = String(min).padStart(2, '0') + ":" + String(reste).padStart(2, '0');
+}, 1000);
+
+if ("Notification" in window) {
+  Notification.requestPermission().then(p => {
+    if (p === "granted") {
+      setInterval(() => {
+        if (todos.length > 0) {
+          const index = Math.floor(Math.random() * todos.length);
+          new Notification("À faire !", { body: todos[index], icon: "" });
+        }
+      }, 600000);
+    }
+  });
+}
+</script>
+</body>
+</html>
